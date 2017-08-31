@@ -36,6 +36,14 @@
 
 {% block content %}
 <div class="container">
+    <!--for 部分代码用于渲染主程序中 flash() 函数产生的消息-->
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-warning">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+    </div>
+    {% endfor %}
+    <!--page_content 部分用于继承模板中重载-->
     {% block page_content %}{% endblock %}
 </div>
 {% endblock %}
