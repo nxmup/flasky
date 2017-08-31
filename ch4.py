@@ -1,10 +1,14 @@
 # coding: utf-8
 import datetime
 
-from flask import Flask, render_template
+from flask import Flask, render_template, session, redirect, url_for
 # render_template 函数把 Jinja2 模板引擎集成到了程序中.
-# 函数的第一个参数名是模板的文件名。随后的参数都是键值对，
-# 表示模板中变量对应的真实值。
+# 函数的第一个参数名是模板的文件名。随后的参数都是键值对，表示模板中变量对应的真实值。
+# session 请求上下文。用户会话，用于存储请求之间需要记住的值的字典
+# redirect 重定向到新链接
+# url_for 获取动态路由的链接，第一个参数是 视图函数名，
+# 可选参数 _external 如果被设置为 True，则会返回绝对链接
+# 动态部分可作为关键字参数同时传入。
 
 from flask_bootstrap import Bootstrap
 # 使用 Bootstrap 框架来组织用户界面
@@ -36,12 +40,11 @@ class NameForm(Form):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    name = None
     form = NameForm()
     if form.validate_on_submit():
-        name = form.name.data
-        form.name.data = ''
-    return render_template('index.html', form=form, name=name)
+        session['name'] = form.name.data
+        return redirect(url_for('index'))
+    return render_template('index.html', form=form, name=session.get('name'))
 
 
 @app.route('/user/<name>')
