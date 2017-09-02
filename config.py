@@ -41,4 +41,4 @@ config = {
     'default': DevelopmentConfig
 }
 
-config_default = config.get('default')
+config_default = 'default'
