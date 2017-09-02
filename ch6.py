@@ -1,4 +1,5 @@
 import os
+from threading import Thread
 from flask import Flask, render_template, session, redirect, url_for
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
@@ -26,6 +27,11 @@ mail = Mail(app)
 db = SQLAlchemy(app)
 
 
+def send_async_email(app, msg):
+    with app.app_context():
+        mail.send(msg)
+
+
 def send_mail(to, subject, template, **kwargs):
     message = Message(app.config['FLASKY_MAIL_SUBJECT_PREFIX'] + subject,
                       sender=app.config['FLASKY_MAIL_SENDER'],
@@ -33,7 +39,9 @@ def send_mail(to, subject, template, **kwargs):
     message.body = render_template(template + '.txt', **kwargs)
     message.html = render_template(template + '.html', **kwargs)
     print(message)
-    mail.send(message)
+    thr = Thread(target=send_async_email, args=[app, message])
+    thr.start()
+    return thr
 
 
 class NameForm(FlaskForm):
