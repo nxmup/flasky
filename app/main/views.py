@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask import render_template, session, redirect, url_for
+from flask_login import login_required
 
 from . import main
 from .forms import NameForm
@@ -29,3 +30,10 @@ def index():
                            name=session.get('name'),
                            known=session.get('known', False),
                            current_time=datetime.utcnow())
+
+
+@main.route('/secret')
+@login_required
+# login_required modifier -- only login user have access to the page
+def secret():
+    return "Only authenticated user are allowed!"
