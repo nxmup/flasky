@@ -7,13 +7,18 @@ app.config.update(
     MAIL_PORT='465',
     MAIL_USR_SSL=True,
     MAIL_USERNAME='2514980765',
-    MAIL_PASSWORD='zfcxjvmnanmkdjab'
+    MAIL_PASSWORD='gpfldcqclxhcebih'
 )
 mail = Mail(app)
 
 
-msg = Message(subject='Hello, world', sender='2514980765@qq.com',
-              recipients=['liuqi0315@gmail.com'])
-msg.html = "Test html"
-with app.app_context():
+@app.route('/')
+def index():
+    msg = Message(subject='Hello, world', sender='Flasky Admin <2514980765@qq.com>',
+                  recipients=['liuqi0315@gmail.com'])
+    msg.html = "Test html"
     mail.send(msg)
+    return "Hello World"
+
+if __name__ == '__main__':
+    app.run(debug=True)
