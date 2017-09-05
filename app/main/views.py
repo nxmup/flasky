@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import render_template, session, redirect, url_for
+from flask import render_template, session, redirect, url_for, current_app
 from flask_login import login_required
 
 from . import main
@@ -13,15 +13,24 @@ from ..email import send_mail
 def index():
     form = NameForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.name.data).first()
-        if user is None:
-            user = User(username=form.name.data)
-            db.session.add(user)
+        user = User.query.filter_by(email="new_user_null_email@example.com").first()
+
+        if user is not None:
+            db.session.delete(user)
             db.session.commit()
-            session['known'] = False
-            send_mail()
-        else:
             session['known'] = True
+        else:
+            session['known'] = False
+
+        new_user = User()
+        new_user.email='new_user_null_email@example.com'
+        new_user.username=form.name.data
+        new_user.password='default_password'
+
+        db.session.add(new_user)
+        db.session.commit()
+        send_mail(current_app._get_current_object().config['FLASKY_ADMIN'],
+                  'New User', 'mail/new_user', user=new_user)
         session['name'] = form.name.data
         form.name.data = ''
         return redirect(url_for('.index'))
