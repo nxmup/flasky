@@ -7,6 +7,15 @@ from ..email import send_mail
 from .forms import LoginForm, RegistrationForm
 
 
+@auth.before_app_request
+def before_request():
+    if current_user.is_authenticated:
+        current_user.ping()
+        if not current_user.confirmed and request.endpoint \
+                and request.endpoint[:5] != 'auth.' and request.endpoint != 'static':
+            return redirect(url_for('auth.unconfirmed'))
+
+
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -31,11 +40,7 @@ def logout():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User()
-        user.email = form.email.data
-        user.username = form.username.data
-        user.password = form.password.data
-
+        user = User(email=form.email.data, username=form.username.data, password=form.password.data)
         db.session.add(user)
         db.session.commit()
         token = user.generate_confirmation_token()
@@ -55,16 +60,6 @@ def confirm(token):
     else:
         flash("The confirmation link is invalid or has expired.")
     return redirect(url_for('main.index'))
-
-
-@auth.before_app_request
-def before_request():
-    if current_user.is_authenticated \
-            and not current_user.confirmed \
-            and request.endpoint \
-            and request.endpoint[:5] != 'auth.' \
-            and request.endpoint != 'static':
-        return redirect(url_for('auth.unconfirmed'))
 
 
 @auth.route('/unconfirmed')
