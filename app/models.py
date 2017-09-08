@@ -19,6 +19,13 @@ class Permission:
     ADMINISTER = 0x80
 
 
+class Follow(db.Model):
+    __tablename__ = "follows"
+    follower_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    followed_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
@@ -75,6 +82,21 @@ class User(UserMixin, db.Model):
     about_me = db.Column(db.TEXT())
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
+    # follow
+    followed = db.relationship('Follow',
+                               foreign_keys=[Follow.follower_id],
+                               backref=db.backref('follower', lazy='joined'),
+                               lazy='dynamic',
+                               cascade='all, delete-orphan')
+    followers = db.relationship('Follow',
+                                foreign_keys=[Follow.followed_id],
+                                backref=db.backref('followed', lazy='joined'),
+                                lazy='dynamic',
+                                cascade='all, delete-orphan')
+
+    @property
+    def followed_posts(self):
+        return Post.query.join(Follow, Follow.followed_id == Post.author_id).filter(Follow.follower_id == self.id)
 
     @property
     def password(self):
@@ -153,6 +175,24 @@ class User(UserMixin, db.Model):
             except IntegrityError:
                 db.session.rollback()
 
+    def follow(self, user):
+        if not self.is_following(user):
+            follow = Follow(follower=self, followed=user)
+            db.session.add(follow)
+            db.session.commit()
+
+    def unfollow(self, user):
+        followed = self.followed.filter_by(followed_id=user.id).first()
+        if followed:
+            db.session.delete(followed)
+            db.session.commit()
+
+    def is_following(self, user):
+        return self.followed.filter_by(followed_id=user.id).first() is not None
+
+    def is_followed_by(self, user):
+        return self.followers.filter_by(followed_id=user.id).first() is not None
+
     def __repr__(self):
         return '<User %r>' % self.username
 
@@ -203,6 +243,7 @@ class AnonymouseUser(AnonymousUserMixin):
 
 login_manager.anonymous_user = AnonymouseUser
 db.event.listen(Post.body, 'set', Post.on_changed_body)
+
 
 @login_manager.user_loader
 def load_user(user_id):
