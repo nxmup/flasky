@@ -37,6 +37,13 @@
 
 {% block content %}
     <div class="container">
+        {% for get_flashed_message in get_flashed_messages() %}
+            <div class="alert alert-warning">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ get_flashed_message }}
+            </div>
+        {% endfor %}
+
         {% block page_content %}{% endblock %}
         {# page_content 块中的内容由衍生模板定义 #}
     </div>
