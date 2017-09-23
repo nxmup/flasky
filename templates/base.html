@@ -41,3 +41,9 @@
         {# page_content 块中的内容由衍生模板定义 #}
     </div>
 {% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    {{ moment.include_moment() }}
+    {# 引入 moment.js 库，向模板开发 moment 类用于处理时间戳 #}
+{% endblock %}

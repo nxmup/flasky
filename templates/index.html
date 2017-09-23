@@ -8,4 +8,9 @@
     <div class="page-header">
         <h1>Hello World!</h1>
     </div>
+{# 渲染时间 #}
+<p>The local date and time is {{ moment(current_time).format('LLL') }}</p>
+{# format('LLL') 根据客户端电脑中的时区和区域设置渲染日期和时间，参数决定了渲染方式， 'L' 到 'LLL' 对应不同复杂度#}
+<p>That was {{ moment(current_time).fromNow(refresh=True) }}</p>
+{# fromNow() 渲染相对时间戳，而且会随着时间的推移自动刷新显示的时间 #}
 {% endblock %}
