@@ -5,6 +5,13 @@
     {# 标题 #}
 {% endblock %}
 
+{% block head %}
+    {{ super() }}
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+{% endblock %}
+
+
 {% block navbar %}
     {# 使用 Bootstrap 组件定义了一个简单的导航条 #}
     <div class="navbar navbar-inverse" role="navigation">
