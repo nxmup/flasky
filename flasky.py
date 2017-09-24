@@ -1,4 +1,5 @@
 import os
+from threading import Thread
 from flask import Flask, render_template, session, redirect, url_for, flash
 from flask_script import Manager, Shell
 from flask_bootstrap import Bootstrap
@@ -60,13 +61,20 @@ class User(db.Model):
         return '<User %r>' % self.username
 
 
+def send_async_email(app, message):
+    with app.app_context():
+        mail.send(message)
+
+
 def send_mail(to, subject, template, **kwargs):
     message = Message(app.config['FLASKY_MAIL_SUBJECT_PREFIX'] + subject,
                       sender=app.config['FLASKY_MAIL_SENDER'],
                       recipients=[to])
     message.body = render_template(template + '.txt', **kwargs)
     message.html = render_template(template + '.html', **kwargs)
-    mail.send(message)
+    thread = Thread(target=send_async_email, args=[app, message])
+    thread.start()
+    return thread
 
 
 @app.route('/', methods=['GET', 'POST'])
