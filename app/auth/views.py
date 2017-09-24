@@ -10,11 +10,13 @@ from ..email import send_mail
 
 @auth.before_app_request
 def before_request():
-    if current_user.is_authenticated \
-            and not current_user.confirmed \
+    if current_user.is_authenticated:
+        current_user.ping()
+
+        if not current_user.confirmed \
             and request.endpoint[:5] != 'auth.' \
             and request.endpoint != "static":
-        return redirect(url_for('auth.unconfirmed'))
+            return redirect(url_for('auth.unconfirmed'))
 
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -75,7 +77,7 @@ def unconfirmed():
 @auth.route('/confirm')
 @login_required
 def resend_confirmation():
-    token = current_user.genetate_confirmation_token()
+    token = current_user.generate_confirmation_token()
     send_mail(current_user.email, 'Confirm You Account', 'auth/email/confirm', user=current_user, token=token)
     flash('A mew confirmation email has been sent to you by email.')
     return redirect(url_for('main.index'))
