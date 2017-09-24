@@ -9,7 +9,13 @@ class Config:
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # MAIL
-    FLASKY_MAIL_SUBJECT_PROFIX = '[Flasky]'
+    MAIL_SERVER = "smtp.qq.com"
+    MAIL_PORT = 25
+    MAIL_USE_TLS = True
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+
+    FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
     FLASKY_MAIL_SENDER = 'Flasky Admin <{}>'.format(os.environ.get('MAIL_USERNAME'))
     FLASKY_ADMIN = 'liuqi0315@gmail.com'
 
@@ -20,11 +26,6 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    MAIL_SENDER = "smtp.qq.com"
-    MAIL_PORT = 25
-    MAIL_USE_TLS = True
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or 'sqlite:///' + os.path.join(basedir,
                                                                                                 'data-dev.sqlite')
 
