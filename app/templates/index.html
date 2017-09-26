@@ -36,3 +36,8 @@
     {#<p>That was {{ moment(current_time).fromNow(refresh=True) }}</p>#}
     {# fromNow() 渲染相对时间戳，而且会随着时间的推移自动刷新显示的时间 #}
 {% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    {{ pagedown.include_pagedown() }}
+{% endblock %}
